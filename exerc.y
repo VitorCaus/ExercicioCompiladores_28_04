@@ -1,40 +1,126 @@
+/*
+    Nomes: Henrique Balejos, Miguel Warken e Vitor Caús
+    T2 Construção de Compiladores
+*/
+
 %{
   import java.io.*;
 %}
    
 
-%token IF, DO, TO, THEN, ELSE, BY, endif, num, ident
+%token IF, ELSE, WHILE, AND, NUM, IDENT, VOID, INT, DOUBLE, BOOLEAN, FUNC, RETURN, NOT, OR, GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUAL
 
+%left OR
+%left AND
+%left '>' '<' GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUAL
 %left '+' '-'
 %left '*' '/'
-
+%right '='
+%right NOT
 
 %%
  
-Prog :  Bloco
-    ;
+Prog  :  ListaDecl
+      ;
+
+ListaDecl : DeclVar ListaDecl
+          | DeclFunc ListaDecl
+	        | /* vazio */
+          ;
+
+DeclVar   : Tipo ListaIdent ';'
+          ;
+
+DeclFunc  : FUNC TipoOuVoid IDENT '(' FormalPar ')' '{' LCmd '}'
+          ;
+
+TipoOuVoid  : VOID
+            | Tipo SufixoTipoArraySemIndex
+            ;
+
+Tipo  : INT
+      | DOUBLE
+      | BOOLEAN
+      ;
+
+SufixoTipoArrayIndex  : '[' NUM ']'
+            | /* vazio */
+            ; 
+
+SufixoTipoArraySemIndex : '['']'
+            | /* vazio */
+            ; 
+
+ListaIdent : IDENT SufixoTipoArrayIndex RestoListaIdent
+          ;
+
+RestoListaIdent : ',' IDENT RestoListaIdent
+                | /* vazio */
+                ;
+
+FormalPar : ParamList
+          | /* vazio */
+          ;
+
+ParamCallList : IDENT RestoParamCall
+              | NUM RestoParamCall
+              ;    
+                
+FormalParCall : ParamCallList
+              |
+              ;
+              
+ParamList : Tipo IDENT SufixoTipoArraySemIndex RestoParam
+          ;
+
+RestoParamCall  : ',' IDENT RestoParamCall
+                | ',' NUM RestoParamCall
+                |
+                ;
+
+RestoParam : ',' Tipo IDENT SufixoTipoArraySemIndex RestoParam
+          | /* vazio */
+          ;
 
 Bloco : '{' LCmd '}'
       ;
 
-LCmd : LCmd  C
-     |       // vazio
+LCmd : C  LCmd
+     | /* vazio */
      ;
 
-C : ident '=' E ';'
-  | IF '(' E ')' THEN C endif
-  | IF '(' E ')' THEN C ELSE C endif  
+C : Bloco
+  | IF '(' E ')' C
+  | IF '(' E ')' C ELSE C  
+  | WHILE '(' E ')' C
+  | E ';'
+  | RETURN RestoReturn ';'
+  | DeclVar
   ;
 
+RestoReturn : E 
+            | /* vazio */
+            ;
 
 E : E '+' E
   | E '-' E
-  | E '*' E 
+  | E '*' E
   | E '/' E
-  | num
-  | ident
-;
-
+  | E '<' E
+  | E '>' E
+  | IDENT SufixoTipoArrayIndex '=' E
+  | E AND E
+  | E OR E
+  | E EQUALS E
+  | E GREATER_EQUAL E
+  | E LESS_EQUAL E
+  | E NOT_EQUAL E
+  | NOT E
+  | NUM
+  | '(' E ')'
+  | IDENT '(' FormalParCall ')'
+  | IDENT SufixoTipoArrayIndex
+  ;
 
 %%
 

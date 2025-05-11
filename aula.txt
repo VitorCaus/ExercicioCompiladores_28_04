@@ -1,8 +1,0 @@
-$TRACE_OFF
-
-{
-    $TRACE_ON
-    a = b;
-    $TRACE_OFF
- 
-}

@@ -1,0 +1,8 @@
+$TRACE_ON
+
+int a[];
+
+func void teste(double d, int a[]) {
+    d = 2;
+    return;
+}

@@ -1,0 +1,1621 @@
+   0  $accept : Prog $end
+
+   1  Prog : ListaDecl
+
+   2  ListaDecl : DeclVar ListaDecl
+   3            | DeclFunc ListaDecl
+   4            |
+
+   5  DeclVar : Tipo ListaIdent ';'
+
+   6  DeclFunc : FUNC TipoOuVoid IDENT '(' FormalPar ')' '{' LCmd '}'
+
+   7  TipoOuVoid : VOID
+   8             | Tipo SufixoTipoArraySemIndex
+
+   9  Tipo : INT
+  10       | DOUBLE
+  11       | BOOLEAN
+
+  12  SufixoTipoArrayIndex : '[' NUM ']'
+  13                       |
+
+  14  SufixoTipoArraySemIndex : '[' ']'
+  15                          |
+
+  16  ListaIdent : IDENT SufixoTipoArrayIndex RestoListaIdent
+
+  17  RestoListaIdent : ',' IDENT RestoListaIdent
+  18                  |
+
+  19  FormalPar : ParamList
+  20            |
+
+  21  ParamCallList : IDENT RestoParamCall
+  22                | NUM RestoParamCall
+
+  23  FormalParCall : ParamCallList
+  24                |
+
+  25  ParamList : Tipo IDENT SufixoTipoArraySemIndex RestoParam
+
+  26  RestoParamCall : ',' IDENT RestoParamCall
+  27                 | ',' NUM RestoParamCall
+  28                 |
+
+  29  RestoParam : ',' Tipo IDENT SufixoTipoArraySemIndex RestoParam
+  30             |
+
+  31  Bloco : '{' LCmd '}'
+
+  32  LCmd : C LCmd
+  33       |
+
+  34  C : Bloco
+  35    | IF '(' E ')' C
+  36    | IF '(' E ')' C ELSE C
+  37    | WHILE '(' E ')' C
+  38    | E ';'
+  39    | RETURN RestoReturn ';'
+  40    | DeclVar
+
+  41  RestoReturn : E
+  42              |
+
+  43  E : E '+' E
+  44    | E '-' E
+  45    | E '*' E
+  46    | E '/' E
+  47    | E '<' E
+  48    | E '>' E
+  49    | IDENT SufixoTipoArrayIndex '=' E
+  50    | E AND E
+  51    | E OR E
+  52    | E EQUALS E
+  53    | E GREATER_EQUAL E
+  54    | E LESS_EQUAL E
+  55    | E NOT_EQUAL E
+  56    | NOT E
+  57    | NUM
+  58    | '(' E ')'
+  59    | IDENT '(' FormalParCall ')'
+  60    | IDENT SufixoTipoArrayIndex
+
+state 0
+	$accept : . Prog $end  (0)
+	ListaDecl : .  (4)
+
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	FUNC  shift 4
+	$end  reduce 4
+
+	Prog  goto 5
+	ListaDecl  goto 6
+	DeclVar  goto 7
+	DeclFunc  goto 8
+	Tipo  goto 9
+
+
+state 1
+	Tipo : INT .  (9)
+
+	.  reduce 9
+
+
+state 2
+	Tipo : DOUBLE .  (10)
+
+	.  reduce 10
+
+
+state 3
+	Tipo : BOOLEAN .  (11)
+
+	.  reduce 11
+
+
+state 4
+	DeclFunc : FUNC . TipoOuVoid IDENT '(' FormalPar ')' '{' LCmd '}'  (6)
+
+	VOID  shift 10
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	.  error
+
+	Tipo  goto 11
+	TipoOuVoid  goto 12
+
+
+state 5
+	$accept : Prog . $end  (0)
+
+	$end  accept
+
+
+state 6
+	Prog : ListaDecl .  (1)
+
+	.  reduce 1
+
+
+state 7
+	ListaDecl : DeclVar . ListaDecl  (2)
+	ListaDecl : .  (4)
+
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	FUNC  shift 4
+	$end  reduce 4
+
+	ListaDecl  goto 13
+	DeclVar  goto 7
+	DeclFunc  goto 8
+	Tipo  goto 9
+
+
+state 8
+	ListaDecl : DeclFunc . ListaDecl  (3)
+	ListaDecl : .  (4)
+
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	FUNC  shift 4
+	$end  reduce 4
+
+	ListaDecl  goto 14
+	DeclVar  goto 7
+	DeclFunc  goto 8
+	Tipo  goto 9
+
+
+state 9
+	DeclVar : Tipo . ListaIdent ';'  (5)
+
+	IDENT  shift 15
+	.  error
+
+	ListaIdent  goto 16
+
+
+state 10
+	TipoOuVoid : VOID .  (7)
+
+	.  reduce 7
+
+
+state 11
+	TipoOuVoid : Tipo . SufixoTipoArraySemIndex  (8)
+	SufixoTipoArraySemIndex : .  (15)
+
+	'['  shift 17
+	IDENT  reduce 15
+
+	SufixoTipoArraySemIndex  goto 18
+
+
+state 12
+	DeclFunc : FUNC TipoOuVoid . IDENT '(' FormalPar ')' '{' LCmd '}'  (6)
+
+	IDENT  shift 19
+	.  error
+
+
+state 13
+	ListaDecl : DeclVar ListaDecl .  (2)
+
+	.  reduce 2
+
+
+state 14
+	ListaDecl : DeclFunc ListaDecl .  (3)
+
+	.  reduce 3
+
+
+state 15
+	ListaIdent : IDENT . SufixoTipoArrayIndex RestoListaIdent  (16)
+	SufixoTipoArrayIndex : .  (13)
+
+	'['  shift 20
+	';'  reduce 13
+	','  reduce 13
+
+	SufixoTipoArrayIndex  goto 21
+
+
+state 16
+	DeclVar : Tipo ListaIdent . ';'  (5)
+
+	';'  shift 22
+	.  error
+
+
+state 17
+	SufixoTipoArraySemIndex : '[' . ']'  (14)
+
+	']'  shift 23
+	.  error
+
+
+state 18
+	TipoOuVoid : Tipo SufixoTipoArraySemIndex .  (8)
+
+	.  reduce 8
+
+
+state 19
+	DeclFunc : FUNC TipoOuVoid IDENT . '(' FormalPar ')' '{' LCmd '}'  (6)
+
+	'('  shift 24
+	.  error
+
+
+state 20
+	SufixoTipoArrayIndex : '[' . NUM ']'  (12)
+
+	NUM  shift 25
+	.  error
+
+
+state 21
+	ListaIdent : IDENT SufixoTipoArrayIndex . RestoListaIdent  (16)
+	RestoListaIdent : .  (18)
+
+	','  shift 26
+	';'  reduce 18
+
+	RestoListaIdent  goto 27
+
+
+state 22
+	DeclVar : Tipo ListaIdent ';' .  (5)
+
+	.  reduce 5
+
+
+state 23
+	SufixoTipoArraySemIndex : '[' ']' .  (14)
+
+	.  reduce 14
+
+
+state 24
+	DeclFunc : FUNC TipoOuVoid IDENT '(' . FormalPar ')' '{' LCmd '}'  (6)
+	FormalPar : .  (20)
+
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	')'  reduce 20
+
+	Tipo  goto 28
+	FormalPar  goto 29
+	ParamList  goto 30
+
+
+state 25
+	SufixoTipoArrayIndex : '[' NUM . ']'  (12)
+
+	']'  shift 31
+	.  error
+
+
+state 26
+	RestoListaIdent : ',' . IDENT RestoListaIdent  (17)
+
+	IDENT  shift 32
+	.  error
+
+
+state 27
+	ListaIdent : IDENT SufixoTipoArrayIndex RestoListaIdent .  (16)
+
+	.  reduce 16
+
+
+state 28
+	ParamList : Tipo . IDENT SufixoTipoArraySemIndex RestoParam  (25)
+
+	IDENT  shift 33
+	.  error
+
+
+state 29
+	DeclFunc : FUNC TipoOuVoid IDENT '(' FormalPar . ')' '{' LCmd '}'  (6)
+
+	')'  shift 34
+	.  error
+
+
+state 30
+	FormalPar : ParamList .  (19)
+
+	.  reduce 19
+
+
+state 31
+	SufixoTipoArrayIndex : '[' NUM ']' .  (12)
+
+	.  reduce 12
+
+
+state 32
+	RestoListaIdent : ',' IDENT . RestoListaIdent  (17)
+	RestoListaIdent : .  (18)
+
+	','  shift 26
+	';'  reduce 18
+
+	RestoListaIdent  goto 35
+
+
+state 33
+	ParamList : Tipo IDENT . SufixoTipoArraySemIndex RestoParam  (25)
+	SufixoTipoArraySemIndex : .  (15)
+
+	'['  shift 17
+	')'  reduce 15
+	','  reduce 15
+
+	SufixoTipoArraySemIndex  goto 36
+
+
+state 34
+	DeclFunc : FUNC TipoOuVoid IDENT '(' FormalPar ')' . '{' LCmd '}'  (6)
+
+	'{'  shift 37
+	.  error
+
+
+state 35
+	RestoListaIdent : ',' IDENT RestoListaIdent .  (17)
+
+	.  reduce 17
+
+
+state 36
+	ParamList : Tipo IDENT SufixoTipoArraySemIndex . RestoParam  (25)
+	RestoParam : .  (30)
+
+	','  shift 38
+	')'  reduce 30
+
+	RestoParam  goto 39
+
+
+state 37
+	DeclFunc : FUNC TipoOuVoid IDENT '(' FormalPar ')' '{' . LCmd '}'  (6)
+	LCmd : .  (33)
+
+	IF  shift 40
+	WHILE  shift 41
+	NUM  shift 42
+	IDENT  shift 43
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	RETURN  shift 44
+	NOT  shift 45
+	'('  shift 46
+	'{'  shift 47
+	'}'  reduce 33
+
+	DeclVar  goto 48
+	Tipo  goto 9
+	LCmd  goto 49
+	Bloco  goto 50
+	C  goto 51
+	E  goto 52
+
+
+state 38
+	RestoParam : ',' . Tipo IDENT SufixoTipoArraySemIndex RestoParam  (29)
+
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	.  error
+
+	Tipo  goto 53
+
+
+state 39
+	ParamList : Tipo IDENT SufixoTipoArraySemIndex RestoParam .  (25)
+
+	.  reduce 25
+
+
+state 40
+	C : IF . '(' E ')' C  (35)
+	C : IF . '(' E ')' C ELSE C  (36)
+
+	'('  shift 54
+	.  error
+
+
+state 41
+	C : WHILE . '(' E ')' C  (37)
+
+	'('  shift 55
+	.  error
+
+
+state 42
+	E : NUM .  (57)
+
+	.  reduce 57
+
+
+state 43
+	E : IDENT . SufixoTipoArrayIndex '=' E  (49)
+	E : IDENT . '(' FormalParCall ')'  (59)
+	E : IDENT . SufixoTipoArrayIndex  (60)
+	SufixoTipoArrayIndex : .  (13)
+
+	'('  shift 56
+	'['  shift 20
+	AND  reduce 13
+	OR  reduce 13
+	GREATER_EQUAL  reduce 13
+	LESS_EQUAL  reduce 13
+	EQUALS  reduce 13
+	NOT_EQUAL  reduce 13
+	'>'  reduce 13
+	'<'  reduce 13
+	'+'  reduce 13
+	'-'  reduce 13
+	'*'  reduce 13
+	'/'  reduce 13
+	'='  reduce 13
+	';'  reduce 13
+	')'  reduce 13
+
+	SufixoTipoArrayIndex  goto 57
+
+
+state 44
+	C : RETURN . RestoReturn ';'  (39)
+	RestoReturn : .  (42)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	';'  reduce 42
+
+	E  goto 58
+	RestoReturn  goto 59
+
+
+state 45
+	E : NOT . E  (56)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 60
+
+
+state 46
+	E : '(' . E ')'  (58)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 61
+
+
+state 47
+	Bloco : '{' . LCmd '}'  (31)
+	LCmd : .  (33)
+
+	IF  shift 40
+	WHILE  shift 41
+	NUM  shift 42
+	IDENT  shift 43
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	RETURN  shift 44
+	NOT  shift 45
+	'('  shift 46
+	'{'  shift 47
+	'}'  reduce 33
+
+	DeclVar  goto 48
+	Tipo  goto 9
+	LCmd  goto 62
+	Bloco  goto 50
+	C  goto 51
+	E  goto 52
+
+
+state 48
+	C : DeclVar .  (40)
+
+	.  reduce 40
+
+
+state 49
+	DeclFunc : FUNC TipoOuVoid IDENT '(' FormalPar ')' '{' LCmd . '}'  (6)
+
+	'}'  shift 63
+	.  error
+
+
+state 50
+	C : Bloco .  (34)
+
+	.  reduce 34
+
+
+state 51
+	LCmd : C . LCmd  (32)
+	LCmd : .  (33)
+
+	IF  shift 40
+	WHILE  shift 41
+	NUM  shift 42
+	IDENT  shift 43
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	RETURN  shift 44
+	NOT  shift 45
+	'('  shift 46
+	'{'  shift 47
+	'}'  reduce 33
+
+	DeclVar  goto 48
+	Tipo  goto 9
+	LCmd  goto 64
+	Bloco  goto 50
+	C  goto 51
+	E  goto 52
+
+
+state 52
+	C : E . ';'  (38)
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	AND  shift 65
+	OR  shift 66
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	';'  shift 77
+	.  error
+
+
+state 53
+	RestoParam : ',' Tipo . IDENT SufixoTipoArraySemIndex RestoParam  (29)
+
+	IDENT  shift 78
+	.  error
+
+
+state 54
+	C : IF '(' . E ')' C  (35)
+	C : IF '(' . E ')' C ELSE C  (36)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 79
+
+
+state 55
+	C : WHILE '(' . E ')' C  (37)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 80
+
+
+state 56
+	E : IDENT '(' . FormalParCall ')'  (59)
+	FormalParCall : .  (24)
+
+	NUM  shift 81
+	IDENT  shift 82
+	')'  reduce 24
+
+	ParamCallList  goto 83
+	FormalParCall  goto 84
+
+
+state 57
+	E : IDENT SufixoTipoArrayIndex . '=' E  (49)
+	E : IDENT SufixoTipoArrayIndex .  (60)
+
+	'='  shift 85
+	AND  reduce 60
+	OR  reduce 60
+	GREATER_EQUAL  reduce 60
+	LESS_EQUAL  reduce 60
+	EQUALS  reduce 60
+	NOT_EQUAL  reduce 60
+	'>'  reduce 60
+	'<'  reduce 60
+	'+'  reduce 60
+	'-'  reduce 60
+	'*'  reduce 60
+	'/'  reduce 60
+	';'  reduce 60
+	')'  reduce 60
+
+
+state 58
+	RestoReturn : E .  (41)
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	AND  shift 65
+	OR  shift 66
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	';'  reduce 41
+
+
+state 59
+	C : RETURN RestoReturn . ';'  (39)
+
+	';'  shift 86
+	.  error
+
+
+state 60
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+	E : NOT E .  (56)
+
+	.  reduce 56
+
+
+state 61
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+	E : '(' E . ')'  (58)
+
+	AND  shift 65
+	OR  shift 66
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	')'  shift 87
+	.  error
+
+
+state 62
+	Bloco : '{' LCmd . '}'  (31)
+
+	'}'  shift 88
+	.  error
+
+
+state 63
+	DeclFunc : FUNC TipoOuVoid IDENT '(' FormalPar ')' '{' LCmd '}' .  (6)
+
+	.  reduce 6
+
+
+state 64
+	LCmd : C LCmd .  (32)
+
+	.  reduce 32
+
+
+state 65
+	E : E AND . E  (50)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 89
+
+
+state 66
+	E : E OR . E  (51)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 90
+
+
+state 67
+	E : E GREATER_EQUAL . E  (53)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 91
+
+
+state 68
+	E : E LESS_EQUAL . E  (54)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 92
+
+
+state 69
+	E : E EQUALS . E  (52)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 93
+
+
+state 70
+	E : E NOT_EQUAL . E  (55)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 94
+
+
+state 71
+	E : E '>' . E  (48)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 95
+
+
+state 72
+	E : E '<' . E  (47)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 96
+
+
+state 73
+	E : E '+' . E  (43)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 97
+
+
+state 74
+	E : E '-' . E  (44)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 98
+
+
+state 75
+	E : E '*' . E  (45)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 99
+
+
+state 76
+	E : E '/' . E  (46)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 100
+
+
+state 77
+	C : E ';' .  (38)
+
+	.  reduce 38
+
+
+state 78
+	RestoParam : ',' Tipo IDENT . SufixoTipoArraySemIndex RestoParam  (29)
+	SufixoTipoArraySemIndex : .  (15)
+
+	'['  shift 17
+	')'  reduce 15
+	','  reduce 15
+
+	SufixoTipoArraySemIndex  goto 101
+
+
+state 79
+	C : IF '(' E . ')' C  (35)
+	C : IF '(' E . ')' C ELSE C  (36)
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	AND  shift 65
+	OR  shift 66
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	')'  shift 102
+	.  error
+
+
+state 80
+	C : WHILE '(' E . ')' C  (37)
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	AND  shift 65
+	OR  shift 66
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	')'  shift 103
+	.  error
+
+
+state 81
+	ParamCallList : NUM . RestoParamCall  (22)
+	RestoParamCall : .  (28)
+
+	','  shift 104
+	')'  reduce 28
+
+	RestoParamCall  goto 105
+
+
+state 82
+	ParamCallList : IDENT . RestoParamCall  (21)
+	RestoParamCall : .  (28)
+
+	','  shift 104
+	')'  reduce 28
+
+	RestoParamCall  goto 106
+
+
+state 83
+	FormalParCall : ParamCallList .  (23)
+
+	.  reduce 23
+
+
+state 84
+	E : IDENT '(' FormalParCall . ')'  (59)
+
+	')'  shift 107
+	.  error
+
+
+state 85
+	E : IDENT SufixoTipoArrayIndex '=' . E  (49)
+
+	NUM  shift 42
+	IDENT  shift 43
+	NOT  shift 45
+	'('  shift 46
+	.  error
+
+	E  goto 108
+
+
+state 86
+	C : RETURN RestoReturn ';' .  (39)
+
+	.  reduce 39
+
+
+state 87
+	E : '(' E ')' .  (58)
+
+	.  reduce 58
+
+
+state 88
+	Bloco : '{' LCmd '}' .  (31)
+
+	.  reduce 31
+
+
+state 89
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E AND E .  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 50
+	OR  reduce 50
+	';'  reduce 50
+	')'  reduce 50
+
+
+state 90
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E OR E .  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	AND  shift 65
+	GREATER_EQUAL  shift 67
+	LESS_EQUAL  shift 68
+	EQUALS  shift 69
+	NOT_EQUAL  shift 70
+	'>'  shift 71
+	'<'  shift 72
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	OR  reduce 51
+	';'  reduce 51
+	')'  reduce 51
+
+
+state 91
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E GREATER_EQUAL E .  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 53
+	OR  reduce 53
+	GREATER_EQUAL  reduce 53
+	LESS_EQUAL  reduce 53
+	EQUALS  reduce 53
+	NOT_EQUAL  reduce 53
+	'>'  reduce 53
+	'<'  reduce 53
+	';'  reduce 53
+	')'  reduce 53
+
+
+state 92
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E LESS_EQUAL E .  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 54
+	OR  reduce 54
+	GREATER_EQUAL  reduce 54
+	LESS_EQUAL  reduce 54
+	EQUALS  reduce 54
+	NOT_EQUAL  reduce 54
+	'>'  reduce 54
+	'<'  reduce 54
+	';'  reduce 54
+	')'  reduce 54
+
+
+state 93
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E EQUALS E .  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 52
+	OR  reduce 52
+	GREATER_EQUAL  reduce 52
+	LESS_EQUAL  reduce 52
+	EQUALS  reduce 52
+	NOT_EQUAL  reduce 52
+	'>'  reduce 52
+	'<'  reduce 52
+	';'  reduce 52
+	')'  reduce 52
+
+
+state 94
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+	E : E NOT_EQUAL E .  (55)
+
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 55
+	OR  reduce 55
+	GREATER_EQUAL  reduce 55
+	LESS_EQUAL  reduce 55
+	EQUALS  reduce 55
+	NOT_EQUAL  reduce 55
+	'>'  reduce 55
+	'<'  reduce 55
+	';'  reduce 55
+	')'  reduce 55
+
+
+state 95
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E '>' E .  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 48
+	OR  reduce 48
+	GREATER_EQUAL  reduce 48
+	LESS_EQUAL  reduce 48
+	EQUALS  reduce 48
+	NOT_EQUAL  reduce 48
+	'>'  reduce 48
+	'<'  reduce 48
+	';'  reduce 48
+	')'  reduce 48
+
+
+state 96
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E '<' E .  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'+'  shift 73
+	'-'  shift 74
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 47
+	OR  reduce 47
+	GREATER_EQUAL  reduce 47
+	LESS_EQUAL  reduce 47
+	EQUALS  reduce 47
+	NOT_EQUAL  reduce 47
+	'>'  reduce 47
+	'<'  reduce 47
+	';'  reduce 47
+	')'  reduce 47
+
+
+state 97
+	E : E . '+' E  (43)
+	E : E '+' E .  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 43
+	OR  reduce 43
+	GREATER_EQUAL  reduce 43
+	LESS_EQUAL  reduce 43
+	EQUALS  reduce 43
+	NOT_EQUAL  reduce 43
+	'>'  reduce 43
+	'<'  reduce 43
+	'+'  reduce 43
+	'-'  reduce 43
+	';'  reduce 43
+	')'  reduce 43
+
+
+state 98
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E '-' E .  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	'*'  shift 75
+	'/'  shift 76
+	AND  reduce 44
+	OR  reduce 44
+	GREATER_EQUAL  reduce 44
+	LESS_EQUAL  reduce 44
+	EQUALS  reduce 44
+	NOT_EQUAL  reduce 44
+	'>'  reduce 44
+	'<'  reduce 44
+	'+'  reduce 44
+	'-'  reduce 44
+	';'  reduce 44
+	')'  reduce 44
+
+
+state 99
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E '*' E .  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	.  reduce 45
+
+
+state 100
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E '/' E .  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	.  reduce 46
+
+
+state 101
+	RestoParam : ',' Tipo IDENT SufixoTipoArraySemIndex . RestoParam  (29)
+	RestoParam : .  (30)
+
+	','  shift 38
+	')'  reduce 30
+
+	RestoParam  goto 109
+
+
+state 102
+	C : IF '(' E ')' . C  (35)
+	C : IF '(' E ')' . C ELSE C  (36)
+
+	IF  shift 40
+	WHILE  shift 41
+	NUM  shift 42
+	IDENT  shift 43
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	RETURN  shift 44
+	NOT  shift 45
+	'('  shift 46
+	'{'  shift 47
+	.  error
+
+	DeclVar  goto 48
+	Tipo  goto 9
+	Bloco  goto 50
+	C  goto 110
+	E  goto 52
+
+
+state 103
+	C : WHILE '(' E ')' . C  (37)
+
+	IF  shift 40
+	WHILE  shift 41
+	NUM  shift 42
+	IDENT  shift 43
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	RETURN  shift 44
+	NOT  shift 45
+	'('  shift 46
+	'{'  shift 47
+	.  error
+
+	DeclVar  goto 48
+	Tipo  goto 9
+	Bloco  goto 50
+	C  goto 111
+	E  goto 52
+
+
+state 104
+	RestoParamCall : ',' . IDENT RestoParamCall  (26)
+	RestoParamCall : ',' . NUM RestoParamCall  (27)
+
+	NUM  shift 112
+	IDENT  shift 113
+	.  error
+
+
+state 105
+	ParamCallList : NUM RestoParamCall .  (22)
+
+	.  reduce 22
+
+
+state 106
+	ParamCallList : IDENT RestoParamCall .  (21)
+
+	.  reduce 21
+
+
+state 107
+	E : IDENT '(' FormalParCall ')' .  (59)
+
+	.  reduce 59
+
+
+state 108
+	E : E . '+' E  (43)
+	E : E . '-' E  (44)
+	E : E . '*' E  (45)
+	E : E . '/' E  (46)
+	E : E . '<' E  (47)
+	E : E . '>' E  (48)
+	E : IDENT SufixoTipoArrayIndex '=' E .  (49)
+	E : E . AND E  (50)
+	E : E . OR E  (51)
+	E : E . EQUALS E  (52)
+	E : E . GREATER_EQUAL E  (53)
+	E : E . LESS_EQUAL E  (54)
+	E : E . NOT_EQUAL E  (55)
+
+	.  reduce 49
+
+
+state 109
+	RestoParam : ',' Tipo IDENT SufixoTipoArraySemIndex RestoParam .  (29)
+
+	.  reduce 29
+
+
+110: shift/reduce conflict (shift 114, reduce 35) on ELSE
+state 110
+	C : IF '(' E ')' C .  (35)
+	C : IF '(' E ')' C . ELSE C  (36)
+
+	ELSE  shift 114
+	IF  reduce 35
+	WHILE  reduce 35
+	NUM  reduce 35
+	IDENT  reduce 35
+	INT  reduce 35
+	DOUBLE  reduce 35
+	BOOLEAN  reduce 35
+	RETURN  reduce 35
+	NOT  reduce 35
+	'('  reduce 35
+	'{'  reduce 35
+	'}'  reduce 35
+
+
+state 111
+	C : WHILE '(' E ')' C .  (37)
+
+	.  reduce 37
+
+
+state 112
+	RestoParamCall : ',' NUM . RestoParamCall  (27)
+	RestoParamCall : .  (28)
+
+	','  shift 104
+	')'  reduce 28
+
+	RestoParamCall  goto 115
+
+
+state 113
+	RestoParamCall : ',' IDENT . RestoParamCall  (26)
+	RestoParamCall : .  (28)
+
+	','  shift 104
+	')'  reduce 28
+
+	RestoParamCall  goto 116
+
+
+state 114
+	C : IF '(' E ')' C ELSE . C  (36)
+
+	IF  shift 40
+	WHILE  shift 41
+	NUM  shift 42
+	IDENT  shift 43
+	INT  shift 1
+	DOUBLE  shift 2
+	BOOLEAN  shift 3
+	RETURN  shift 44
+	NOT  shift 45
+	'('  shift 46
+	'{'  shift 47
+	.  error
+
+	DeclVar  goto 48
+	Tipo  goto 9
+	Bloco  goto 50
+	C  goto 117
+	E  goto 52
+
+
+state 115
+	RestoParamCall : ',' NUM RestoParamCall .  (27)
+
+	.  reduce 27
+
+
+state 116
+	RestoParamCall : ',' IDENT RestoParamCall .  (26)
+
+	.  reduce 26
+
+
+state 117
+	C : IF '(' E ')' C ELSE C .  (36)
+
+	.  reduce 36
+
+
+State 110 contains 1 shift/reduce conflict.
+
+
+35 terminals, 22 nonterminals
+61 grammar rules, 118 states

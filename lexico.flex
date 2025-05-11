@@ -1,3 +1,8 @@
+/*
+    Nomes: Henrique Balejos, Miiguel Warken e Vitor Caús
+    T2 Construção de Compiladores
+*/
+
 %%
 
 %byaccj
@@ -14,32 +19,48 @@
 
 NL  = \n | \r | \r\n
 
+
 %%
 
 "$TRACE_ON"  { yyparser.setDebug(true);  }
 "$TRACE_OFF" { yyparser.setDebug(false); }
 
 if { return Parser.IF;}
-do { return Parser.DO; }
-to { return Parser.TO; }
-then { return Parser.THEN;}
 else { return Parser.ELSE;}
-by { return Parser.BY;} 
-endif { return Parser.endif;}
+while { return Parser.WHILE;}
+void {return Parser.VOID;}
+int { return Parser.INT;}
+double { return Parser.DOUBLE;}
+boolean { return Parser.BOOLEAN;}
+and {return Parser.AND;}
+or  {return Parser.OR;}
+not {return Parser.NOT;}
+func {return Parser.FUNC;}
+return {return Parser.RETURN;}
 
-[0-9]+ { return Parser.num;}
-[a-zA-Z][a-zA-Z0-9]* { return Parser.ident;}
+[0-9]+ { return Parser.NUM;}
+[a-zA-Z][a-zA-Z0-9]* { return Parser.IDENT;}
 
 "{" |
 "}" |
 "=" |
+"[" |
+"]" |
 "(" |
 ")" |
 ";" |
 "*" |
 "/" |
 "+" |
-"-"     { return (int) yycharat(0); }
+"-" |
+">" |
+"<" |
+","    { return (int) yycharat(0); }
+
+"!="    {return Parser.NOT_EQUAL;}
+">="    {return Parser.GREATER_EQUAL;}
+"<="    {return Parser.LESS_EQUAL;}
+"=="    {return Parser.EQUALS;}
 
 [ \t]+ { }
 {NL}+  { } 

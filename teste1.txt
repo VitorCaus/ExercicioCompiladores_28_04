@@ -2,11 +2,11 @@ $TRACE_ON
 
 func int teste() {
     int a;
-    a = 3 *;
+    a = 3;
 
     while(b<3){
         if(a != c[2])
-            return a;
+            return a[1];
         else 
             return 12;
     }
