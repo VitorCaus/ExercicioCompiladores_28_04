@@ -67,7 +67,7 @@ ParamCallList : IDENT RestoParamCall
               ;    
                 
 FormalParCall : ParamCallList
-              |
+              | /* vazio */
               ;
               
 ParamList : Tipo IDENT SufixoTipoArraySemIndex RestoParam
@@ -75,7 +75,7 @@ ParamList : Tipo IDENT SufixoTipoArraySemIndex RestoParam
 
 RestoParamCall  : ',' IDENT RestoParamCall
                 | ',' NUM RestoParamCall
-                |
+                | /* vazio */
                 ;
 
 RestoParam : ',' Tipo IDENT SufixoTipoArraySemIndex RestoParam
