@@ -43,11 +43,11 @@ Tipo  : INT
       | BOOLEAN
       ;
 
-SufixoTipoArrayIndex  : '[' NUM ']'
+SufixoTipoArrayIndex  : '[' NUM ']' SufixoTipoArrayIndex
             | /* vazio */
             ; 
 
-SufixoTipoArraySemIndex : '['']'
+SufixoTipoArraySemIndex : '['']' SufixoTipoArraySemIndex
             | /* vazio */
             ; 
 

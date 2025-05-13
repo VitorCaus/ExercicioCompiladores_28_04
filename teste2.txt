@@ -1,8 +1,10 @@
 $TRACE_ON
 
 int a[5];
+int b[4][100];
+int c[2][3][4];
 
-func int[] teste() {
+func int[][] teste() {
     a[3] = 2;
     if (a[3] >= 0 or b==10 and not c) {
         return a;        
