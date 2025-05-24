@@ -1,4 +1,5 @@
 $TRACE_ON
+$
 
 int a[5];
 

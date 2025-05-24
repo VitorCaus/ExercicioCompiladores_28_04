@@ -1,0 +1,28 @@
+int i;
+float x;
+
+int a(int b, float c){
+
+   return b + c;
+}
+
+void main() {
+  x = a(i, x); 
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

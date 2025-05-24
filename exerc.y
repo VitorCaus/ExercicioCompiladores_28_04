@@ -12,7 +12,7 @@
 
 %left OR
 %left AND
-%left '>' '<' GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUAL
+%nonassoc '>' '<' GREATER_EQUAL, LESS_EQUAL, EQUALS, NOT_EQUAL
 %left '+' '-'
 %left '*' '/'
 %right '='
