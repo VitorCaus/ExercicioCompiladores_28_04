@@ -52,7 +52,7 @@ float  { return Parser.FLOAT;   }
 bool   { return Parser.BOOL; }
 string { return Parser.STRING; }
 void { return Parser.VOID; }
-main { return Parser.MAIN; }
+// main { return Parser.MAIN; }
 if { return Parser.IF; }
 function { return Parser.FUNCTION; }
 return { return Parser.RETURN; }

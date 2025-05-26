@@ -17,8 +17,7 @@
 %type <ival> NUM
 %type <obj> type
 %type <obj> exp
-%type <obj> restoReturn
-%type <obj> formalParCall
+/* %type <obj> formalParCall */
 
 %%
 
@@ -29,6 +28,7 @@ dList : decl dList | ;
 decl : declFunc
     | declVar
     ;
+    
 declVar : type IDENT ';' 
             {  TS_entry nodo = ts.pesquisa($2, currEscopo);
               if (nodo != null) 
@@ -41,7 +41,9 @@ declVar : type IDENT ';'
                   yyerror("(sem) variavel >" + $5 + "< jah declarada");
               else ts.insert(new TS_entry($5, Tp_ARRAY, $3, (TS_entry)$1, currEscopo, currClass), currEscopo); 
             }
+            
 /* main : FUNCTION VOID MAIN '(' ')' bloco ; */
+
 formalPar : paramList
           | /* vazio */
           ;
@@ -87,12 +89,10 @@ declFunc : type IDENT  {  TS_entry nodo = ts.pesquisa($2, currEscopo);
                             }
                '(' formalPar ')'
                   { 
-
                     currClass = ClasseID.VarLocal; 
                   }
-               '{' bloco '}'
+                bloco 
                   { currEscopo = null; currClass = ClasseID.VarGlobal; }
-                ';'
              ;
               //
               // faria mais sentido reconhecer todos os tipos como ident! 
@@ -110,37 +110,36 @@ type : INT    { $$ = Tp_INT; }
                      } 
      ;
 
-
 bloco : '{' listacmd '}';
 
 listacmd : listacmd cmd
 		|
  		;
 
-
-restoReturn : exp { $$ = $1; }
-            | { $$ = Tp_VOID; }
-            ;
-
 cmd :  exp ';' 
       | IF '(' exp ')' cmd 
                  {if ( ((TS_entry)$3).getTipo() != Tp_BOOL.getTipo()) 
                            yyerror("(sem) expressão (if) deve ser lógica "+((TS_entry)$3).getTipo());
                   }    
-      | RETURN restoReturn ';'
+      | RETURN exp ';'
         {
           TS_entry tipoFunc = currEscopo.getTipo();
-          TS_entry tipoRet = (TS_entry)$2;
+          TS_entry tipoRet = ((TS_entry)$2);
 
-          if (tipoFunc == Tp_VOID) {
-              if (tipoRet != null && tipoRet != Tp_VOID)
-                  yyerror("(sem) função void não deve retornar valor");
-          } else {
-              if (tipoRet == null || tipoRet == Tp_VOID || tipoFunc != tipoRet)
-                  yyerror("(sem) tipo de retorno incompatível: esperado " + tipoFunc.getTipoStr() + ", encontrado " + (tipoRet != null ? tipoRet.getTipoStr() : "void"));
-          }
+          //VOID
+          if (tipoFunc == Tp_VOID && tipoRet != Tp_VOID) {
+            yyerror("(sem) função void não deve retornar valor. Encontrado: " + tipoRet.getTipoStr());
+          } 
+          //FLOAT
+          else if (tipoFunc == Tp_FLOAT && (tipoRet != Tp_FLOAT && tipoRet != Tp_INT) || 
+                  (tipoFunc == Tp_BOOL && (tipoRet != Tp_BOOL && tipoRet != Tp_INT)) ||
+                  (tipoFunc == Tp_STRING && tipoRet != Tp_STRING) ||
+                  (tipoFunc == Tp_INT && tipoRet != Tp_INT)){
+              yyerror("(sem) tipo de retorno incompatível: esperado " + tipoFunc.getTipoStr() + ", encontrado " + (tipoRet.getTipoStr()));
+          } 
         }
-       ;
+      | declVar
+      ;
 
 exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
    	| exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3);}
@@ -164,19 +163,22 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     | exp '=' exp  
                  {  $$ = validaTipo(ATRIB, (TS_entry)$1, (TS_entry)$3);                      
                  } 
-    | IDENT '(' formalParCall ')'
+    | IDENT 
       {
         TS_entry nodo = ts.pesquisa($1, currEscopo);
         if (nodo == null) 
-            yyerror("(sem) funcao <" + $1 + "> nao declarada");                
-        else if (nodo.getTipo() != Tp_VOID && nodo.getTipo() != Tp_INT && nodo.getTipo() != Tp_FLOAT && nodo.getTipo() != Tp_BOOL && nodo.getTipo() != Tp_STRING)
-            yyerror("(sem) <" + $1 + "> nao é uma função");
+            yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
+        currFuncCall = nodo;
+        indiceParametro = 0;
+      }
+    '(' formalParCall ')' 
+      {
+        TS_entry nodo = ts.pesquisa($1, currEscopo);
+        if (nodo == null) 
+            yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
         
-        if (nodo.getLocalTS().getLista().size() != ((TS_entry)$3).getLocalTS().getLista().size())
-            yyerror("(sem) numero de parametros da funcao <" + $1 + "> invalido");
         else
             $$ = nodo.getTipo();
-        
       }
      /* | exp '.' IDENT 
                  { if (((TS_entry)$1).getTipo() != Tp_STRUCT) 
@@ -200,13 +202,43 @@ paramCallList : IDENT restoParamCall
                   TS_entry nodo = ts.pesquisa($1, currEscopo);
                   if (nodo == null) 
                       yyerror("(sem) variavel >" + $1 + "< nao declarada");
-                  
+                  TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
+                  if(parametro.getTipo() != nodo.getTipo()) {
+                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + nodo.getTipo().getTipoStr());
+                  }
+                  indiceParametro++;
                 }
               | NUM restoParamCall
+                {
+                  TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
+                  if(parametro.getTipo() != Tp_INT && parametro.getTipo() != Tp_FLOAT){
+                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $1);
+                  }
+                  indiceParametro++;
+
+                }
               ;
 
 restoParamCall  : ',' IDENT restoParamCall
+                  {
+                    TS_entry nodo = ts.pesquisa($2, currEscopo);
+                    if (nodo == null) 
+                        yyerror("(sem) variavel >" + $2 + "< nao declarada");
+                    TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
+                    if(parametro.getTipo() != nodo.getTipo()) {
+                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + nodo.getTipo().getTipoStr());
+                    }
+                    indiceParametro++;
+
+                  }
                 | ',' NUM restoParamCall
+                  {
+                    TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
+                    if(parametro.getTipo() != Tp_INT && parametro.getTipo() != Tp_FLOAT){
+                        yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $2);
+                    }
+                    indiceParametro++;
+                  }
                 | /* vazio */
                 ;
 
@@ -228,6 +260,9 @@ restoParamCall  : ',' IDENT restoParamCall
 
   private TS_entry currEscopo;
   private ClasseID currClass;
+  private int indiceParametro = 0;
+  private TS_entry currFuncCall;
+
 
   private int yylex () {
     int yyl_return = -1;
@@ -241,7 +276,9 @@ restoParamCall  : ',' IDENT restoParamCall
     return yyl_return;
   }
 
-
+  public void print (String s){
+    System.out.print(s);
+  }
   public void yyerror (String error) {
     System.err.println ("Erro (linha: "+ lexer.getLine() + ")\tMensagem: "+error);
   }
@@ -343,7 +380,9 @@ restoParamCall  : ',' IDENT restoParamCall
 								  else 
 									   return A.getTipoBase();
                   break;
+              
 						}
+
             return Tp_ERRO;
 				}
 

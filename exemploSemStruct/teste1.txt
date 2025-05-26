@@ -1,28 +1,17 @@
+
 int i;
 float x;
+bool bo;
+string st;
 
-int a(int b, float c){
-
-   return b + c;
+float a(int p1, int p2, string ssss){
+  int d;
+  d = p1 + p2;
+   return d;
 }
 
-void main() {
-  x = a(i, x); 
 
+void main(){
+  x = a(x, x, 15);
+  x = a(bo, st, 15);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
