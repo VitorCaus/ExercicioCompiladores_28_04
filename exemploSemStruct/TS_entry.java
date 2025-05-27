@@ -133,7 +133,8 @@ public class TS_entry
       else if (tipo==Parser.Tp_BOOL)   return "boolean"; 
       else if (tipo==Parser.Tp_FLOAT)  return "float";
       else if (tipo==Parser.Tp_STRING) return "string";
-    //   else if (tipo==Parser.Tp_STRUCT) return "struct";
+      else if (tipo==Parser.Tp_VOID) return "void";
+      //   else if (tipo==Parser.Tp_STRUCT) return "struct";
       else if (tipo==Parser.Tp_ARRAY)  return "array";
     //   else if (tipo.classe==ClasseID.NomeStruct)  return  tipo.getId();
       else if (tipo==Parser.Tp_ERRO)  return  "_erro_";

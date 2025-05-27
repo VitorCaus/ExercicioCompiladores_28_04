@@ -3,8 +3,8 @@
 %}
 
 
-%token IDENT, INT, FLOAT, BOOL, NUM, STRING, FUNCTION, RETURN
-%token LITERAL, AND, VOID, MAIN, IF
+%token IDENT, INT, FLOAT, BOOL, NUM, STRING, RETURN, VOID
+%token LITERAL, AND, MAIN, IF
 
 
 %right '='
@@ -18,11 +18,21 @@
 %type <ival> NUM
 %type <obj> type
 %type <obj> exp
-/* %type <obj> formalParCall */
 
 %%
 
-prog : { currEscopo = null; currClass = ClasseID.VarGlobal; } dList;
+prog : { currEscopo = null; currClass = ClasseID.VarGlobal; } dList
+      {
+        TS_entry mainFunc = ts.pesquisa("main", currEscopo);
+        if (mainFunc == null) {
+          yyerror("(sem) funcao main nao declarada");
+        } else {
+          if (mainFunc.getTipo() != Tp_VOID) {
+            yyerror("(sem) funcao main deve ser do tipo void");
+          }
+        }
+      }
+      ;
 
 dList : decl dList | ;
 
@@ -39,7 +49,7 @@ declVar : type IDENT ';'
         | type '[' NUM ']' IDENT  ';' 
             { TS_entry nodo = ts.pesquisa($5, currEscopo);
               if (nodo != null) 
-                  yyerror("(sem) variavel >" + $5 + "< jah declarada");
+                  yyerror("(sem) variavel (array) >" + $5 + "< jah declarada");
               else ts.insert(new TS_entry($5, Tp_ARRAY, $3, (TS_entry)$1, currEscopo, currClass), currEscopo); 
             }
             
