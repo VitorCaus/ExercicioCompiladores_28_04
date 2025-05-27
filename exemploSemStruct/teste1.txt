@@ -3,6 +3,7 @@ int i;
 float x;
 bool bo;
 string st;
+int[5] arr;
 
 float a(int p1, int p2, string ssss){
   int d;
@@ -12,6 +13,11 @@ float a(int p1, int p2, string ssss){
 
 
 void main(){
-  x = a(x, x, 15);
-  x = a(bo, st, 15);
+  x = a(x, x, "15");
+  bo = a(bo, st, 15);
+  arr[0] = 5;
+  arr[1] = 5;
+  arr[2] = 5;
+  arr[4] = 5;
+  arr[5] = 5;
 }

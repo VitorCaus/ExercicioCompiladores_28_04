@@ -14,6 +14,7 @@
 %left '[' '.' 
 
 %type <sval> IDENT
+%type <sval> LITERAL
 %type <ival> NUM
 %type <obj> type
 %type <obj> exp
@@ -144,7 +145,7 @@ cmd :  exp ';'
 exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
    	| exp '>' exp { $$ = validaTipo('>', (TS_entry)$1, (TS_entry)$3);}
  	  | exp AND exp { $$ = validaTipo(AND, (TS_entry)$1, (TS_entry)$3); } 
-    | NUM         { $$ = Tp_INT; }      
+    | NUM         { numLido = $1; $$ = Tp_INT; }      
     | '(' exp ')' { $$ = $2; }
     | LITERAL     { $$ = Tp_STRING; }      
     | IDENT       { TS_entry nodo = ts.pesquisa($1, currEscopo);
@@ -157,7 +158,13 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
                  { TS_entry nodo = ts.pesquisa($1, currEscopo);
     	             if (nodo == null) 
 	                     yyerror("(sem) var <" + $1 + "> nao declarada");                
-                   else
+                   else if (nodo.getTipo() != Tp_ARRAY)
+                       yyerror("(sem) var <" + $1 + "> nao é do tipo array");
+                   else if(((TS_entry)$3) != Tp_INT)
+                       yyerror("(sem) index deve ser valor inteiro: Recebido " + ((TS_entry)$3));
+                  else if(nodo.getNumElem() <= Integer.valueOf(numLido)){
+                      yyerror("(sem) index maior ou que tamanho do array. Recebido: " + numLido + " Tamanho: " + nodo.getNumElem());
+                  }
                        $$ = validaTipo('[', nodo, (TS_entry)$3);
 						     }
     | exp '=' exp  
@@ -217,6 +224,15 @@ paramCallList : IDENT restoParamCall
                   indiceParametro++;
 
                 }
+              | LITERAL restoParamCall
+                {
+                  TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
+                  if(parametro.getTipo() != Tp_STRING){
+                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $1);
+                  }
+                  indiceParametro++;
+
+                }
               ;
 
 restoParamCall  : ',' IDENT restoParamCall
@@ -239,6 +255,14 @@ restoParamCall  : ',' IDENT restoParamCall
                     }
                     indiceParametro++;
                   }
+                | ',' LITERAL restoParamCall
+                  {
+                    TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
+                    if(parametro.getTipo() != Tp_STRING){
+                        yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $2);
+                    }
+                    indiceParametro++;
+                  }
                 | /* vazio */
                 ;
 
@@ -253,14 +277,15 @@ restoParamCall  : ',' IDENT restoParamCall
   public static TS_entry Tp_BOOL = new TS_entry("bool", null, null, ClasseID.TipoBase);
   public static TS_entry Tp_STRING = new TS_entry("string", null, null, ClasseID.TipoBase);
   public static TS_entry Tp_ARRAY = new TS_entry("array", null, null, ClasseID.TipoBase);
-  public static TS_entry Tp_ERRO = new TS_entry("_erro_", null, null, ClasseID.TipoBase);
   public static TS_entry Tp_VOID = new TS_entry("void", null, null, ClasseID.TipoBase);
+  public static TS_entry Tp_ERRO = new TS_entry("_erro_", null, null, ClasseID.TipoBase);
   public static final int ARRAY = 1500;
   public static final int ATRIB = 1600;
 
   private TS_entry currEscopo;
   private ClasseID currClass;
   private int indiceParametro = 0;
+  private int numLido = 0;
   private TS_entry currFuncCall;
 
 
