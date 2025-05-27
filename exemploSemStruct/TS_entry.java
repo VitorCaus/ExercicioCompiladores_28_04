@@ -47,6 +47,10 @@ public class TS_entry
        return tipo2str(this); 
    }
 
+   public ClasseID getClasse() {
+       return classe; 
+   }
+
    public int getNumElem() {
        return nElem; 
    }

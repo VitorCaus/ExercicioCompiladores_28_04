@@ -5,7 +5,7 @@ bool bo;
 string st;
 int[5] arr;
 
-float a(int p1, int p2, string ssss){
+float a(int p1, int p2, int ssss){
   int d;
   d = p1 + p2;
    return d;
@@ -14,8 +14,7 @@ float a(int p1, int p2, string ssss){
 
 void main(){
   x = a(x, x, "15");
-  bo = a(bo, st, 15);
-  arr[0] = 5;
+  arr[0] = "5";
   arr[1] = 5;
   arr[2] = 5;
   arr[4] = 5;

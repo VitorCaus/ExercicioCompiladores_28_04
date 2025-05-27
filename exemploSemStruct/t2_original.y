@@ -1,5 +1,6 @@
 %{
   import java.io.*;
+  import java.util.ArrayList;
 %}
 
 
@@ -186,6 +187,8 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
         if (nodo == null) 
             yyerror("(sem) funcao <" + $1 + "> nao declarada"); 
         currFuncCall = nodo;
+        setParametroCall(currFuncCall);
+
         indiceParametro = 0;
       }
     '(' formalParCall ')' 
@@ -211,67 +214,105 @@ exp : exp '+' exp { $$ = validaTipo('+', (TS_entry)$1, (TS_entry)$3); }
     ;
 
 formalParCall : paramCallList
+              {
+                if (listaParamCall.size() != listaArgumentosCall.size()) {
+                  yyerror("(sem) numero de parametros da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.size() + ", encontrado " + listaArgumentosCall.size());
+                } else {
+                  for (int i = 0; i < listaParamCall.size(); i++) {
+                    TS_entry parametro = listaParamCall.get(i);
+                    TS_entry argumento = listaArgumentosCall.get(i);
+                    if (parametro.getTipo() != argumento) {
+                      if(argumento.getClasse() != ClasseID.TipoBase){
+                        yyerror("(sem) tipo de parametro <" + parametro.getId() + "> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + parametro.getTipo().getTipoStr() + ", encontrado " + argumento.getTipo().getId());
+                      }
+                      else{
+                        yyerror("(sem) tipo de parametro <" + parametro.getId() + "> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + parametro.getTipo().getTipoStr() + ", encontrado " + argumento.getId());
+                      }
+                    }
+                  }
+                }
+              }
               | /* vazio */
               ;
 
-paramCallList : IDENT restoParamCall 
+paramCallList : IDENT  
+                restoParamCall
                 {
                   TS_entry nodo = ts.pesquisa($1, currEscopo);
                   if (nodo == null) 
                       yyerror("(sem) variavel >" + $1 + "< nao declarada");
-                  TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
-                  if(parametro.getTipo() != nodo.getTipo()) {
-                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + nodo.getTipo().getTipoStr());
+                  else{
+                    listaArgumentosCall.add(nodo);
+
                   }
-                  indiceParametro++;
+                  // TS_entry parametro = listaParamCall.get(indiceParametro);
+                  // if(parametro.getTipo() != nodo.getTipo() && parametro.getClasse() == ClasseID.ParametroFuncao) {
+                  //     yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + nodo.getTipo().getTipoStr());
+                  // }
+                  // indiceParametro++;
                 }
-              | NUM restoParamCall
+              | NUM 
+                restoParamCall
                 {
-                  TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
-                  if(parametro.getTipo() != Tp_INT && parametro.getTipo() != Tp_FLOAT){
-                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $1);
-                  }
-                  indiceParametro++;
+                  // TS_entry parametro = listaParamCall.get(indiceParametro);
+                  // if(parametro.getTipo() != Tp_INT && parametro.getTipo() != Tp_FLOAT && parametro.getClasse() == ClasseID.ParametroFuncao){
+                  //     yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $1);
+                  // }
+                  // indiceParametro++;
+                  listaArgumentosCall.add(Tp_INT);
 
                 }
-              | LITERAL restoParamCall
+              | LITERAL 
+                restoParamCall
                 {
-                  TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
-                  if(parametro.getTipo() != Tp_STRING){
-                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $1);
-                  }
-                  indiceParametro++;
+                  // TS_entry parametro = listaParamCall.get(indiceParametro);
+                  // if(parametro.getTipo() != Tp_STRING && parametro.getClasse() == ClasseID.ParametroFuncao){
+                  //     yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $1);
+                  // }
+                  // indiceParametro++;
+                  listaArgumentosCall.add(Tp_STRING);
 
                 }
               ;
 
-restoParamCall  : ',' IDENT restoParamCall
+restoParamCall  : ',' IDENT 
+                  restoParamCall
                   {
                     TS_entry nodo = ts.pesquisa($2, currEscopo);
                     if (nodo == null) 
                         yyerror("(sem) variavel >" + $2 + "< nao declarada");
-                    TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
-                    if(parametro.getTipo() != nodo.getTipo()) {
-                      yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + nodo.getTipo().getTipoStr());
+                    else{
+                    listaArgumentosCall.add(nodo);
+
                     }
-                    indiceParametro++;
+                    // TS_entry parametro = listaParamCall.get(indiceParametro);
+                    // if(parametro.getTipo() != nodo.getTipo() && parametro.getClasse() == ClasseID.ParametroFuncao) {
+                    //   yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + nodo.getTipo().getTipoStr());
+                    // }
+                    // indiceParametro++;
 
                   }
-                | ',' NUM restoParamCall
+                | ',' NUM 
+                  restoParamCall
                   {
-                    TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
-                    if(parametro.getTipo() != Tp_INT && parametro.getTipo() != Tp_FLOAT){
-                        yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $2);
-                    }
-                    indiceParametro++;
+                    // TS_entry parametro = listaParamCall.get(indiceParametro);
+                    // if(parametro.getTipo() != Tp_INT && parametro.getTipo() != Tp_FLOAT && parametro.getClasse() == ClasseID.ParametroFuncao){
+                    //     yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $2);
+                    // }
+                    // indiceParametro++;
+                    listaArgumentosCall.add(Tp_INT);
+
                   }
-                | ',' LITERAL restoParamCall
+                | ',' LITERAL 
+                  restoParamCall
                   {
-                    TS_entry parametro = currFuncCall.getLocalTS().getLista().get(indiceParametro);
-                    if(parametro.getTipo() != Tp_STRING){
-                        yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + currFuncCall.getLocalTS().getLista().get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $2);
-                    }
-                    indiceParametro++;
+                    // TS_entry parametro = listaParamCall.get(indiceParametro);
+                    // if(parametro.getTipo() != Tp_STRING && parametro.getClasse() == ClasseID.ParametroFuncao){
+                    //     yyerror("(sem) tipo de parametro <"+ parametro.getId() +"> da funcao <" + currFuncCall.getId() + "> invalido: esperado " + listaParamCall.get(indiceParametro).getTipo().getTipoStr() + ", encontrado " + $2);
+                    // }
+                    // indiceParametro++;
+                    listaArgumentosCall.add(Tp_STRING);
+
                   }
                 | /* vazio */
                 ;
@@ -297,7 +338,19 @@ restoParamCall  : ',' IDENT restoParamCall
   private int indiceParametro = 0;
   private int numLido = 0;
   private TS_entry currFuncCall;
+  private static ArrayList<TS_entry> listaParamCall = new ArrayList<TS_entry>();
+  private static ArrayList<TS_entry> listaArgumentosCall = new ArrayList<TS_entry>();
+ 
 
+  public void setParametroCall(TS_entry func){
+    listaParamCall = new ArrayList<TS_entry>();
+    listaArgumentosCall = new ArrayList<TS_entry>();
+    for(TS_entry simb : func.getLocalTS().getLista()){
+      if (simb.getClasse() == ClasseID.ParametroFuncao){
+        listaParamCall.add(simb);
+      }
+    }
+  }
 
   private int yylex () {
     int yyl_return = -1;
@@ -311,9 +364,7 @@ restoParamCall  : ',' IDENT restoParamCall
     return yyl_return;
   }
 
-  public void print (String s){
-    System.out.print(s);
-  }
+  
   public void yyerror (String error) {
     System.err.println ("Erro (linha: "+ lexer.getLine() + ")\tMensagem: "+error);
   }
@@ -366,6 +417,10 @@ restoParamCall  : ',' IDENT restoParamCall
   	yyparser.listarTS();
 
 	  System.out.print("\n\nFeito!\n");
+	  System.out.print("\n\nParametros!\n");
+	  System.out.print("\n\""+ listaParamCall.toString() +"\n");
+	  System.out.print("\n\"Argumentos!\n");
+	  System.out.print("\n\""+ listaArgumentosCall.toString() +"\n");
     
   }
 
