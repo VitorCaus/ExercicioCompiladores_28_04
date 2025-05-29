@@ -1,0 +1,24 @@
+
+int i;
+float x;
+bool bo;
+string st;
+int[5] arr;
+
+float a(int p1, int p2, string str){
+  int d;
+  d = p1 + p2;
+  return d;
+}
+
+void b(int p1, int p2, string str){
+  if(p1 > p2)
+    st = str;
+  return p1;
+}
+
+void main(){
+  i = "7";
+  x = a(i, x, x, bo);
+  arr[5] = 1;
+}

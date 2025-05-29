@@ -1,0 +1,18 @@
+
+int i;
+float x;
+bool bo;
+string st;
+
+float a(int p1, int p2, string str){
+  int d;
+  d = p1 + p2;
+  return d;
+}
+
+
+void main(){
+  i = 7;
+  st = "a";
+  x = a(i, i, st);
+}
